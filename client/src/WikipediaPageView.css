@@ -1,0 +1,15 @@
+.WikipediaPageView {
+  width: 80rem;
+  font-size: 1.2rem;
+  overflow: auto;
+  box-shadow: black;
+  position: absolute;
+  height: 90%;
+  /* padding: 20px; */
+  margin: 20px;
+  border: 1px solid #999;
+  border-radius: 5px;
+  box-shadow: 3px 3px rgba(1, 1, 1, 0.1);
+  background-color: white;
+  box-sizing: border-box;
+}

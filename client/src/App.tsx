@@ -14,15 +14,19 @@ class App extends React.Component<{}, State> {
     wikiHtml: "",
   };
 
+  fetchPage = async (page: string) => {
+    const response = await fetch(
+      `http://localhost:5000/${this.state.searchTerm}`
+    );
+    const wikiHtml = await response.text();
+    this.setState({
+      wikiHtml,
+    });
+  };
+
   onKeyPress = async (event: { key: string }) => {
     if (event.key === "Enter") {
-      const response = await fetch(
-        `http://localhost:5000/${this.state.searchTerm}`
-      );
-      const wikiHtml = await response.text();
-      this.setState({
-        wikiHtml,
-      });
+      await this.fetchPage(this.state.searchTerm);
     }
   };
 
@@ -30,6 +34,11 @@ class App extends React.Component<{}, State> {
     this.setState({
       searchTerm: event.target.value,
     });
+  };
+
+  onWikiClick = (page: string) => {
+    this.setState({ searchTerm: page });
+    this.fetchPage(page);
   };
 
   render() {
@@ -41,7 +50,10 @@ class App extends React.Component<{}, State> {
           value={this.state.searchTerm}
           onKeyPress={this.onKeyPress}
         />
-        <WikipediaPageView wikiHtml={this.state.wikiHtml} />
+        <WikipediaPageView
+          wikiHtml={this.state.wikiHtml}
+          onWikiClick={this.onWikiClick}
+        />
       </div>
     );
   }
