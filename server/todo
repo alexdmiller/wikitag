@@ -1,0 +1,27 @@
+- strip everything but text content
+- only keep links for /wiki/Boomerang
+- parse links out and make them call into javascript code (prevent default?)
+- basic communication between client & server
+  - client makes request to server with name of wikipedia page
+  - server sends down "game ready" wiki content
+  - client displays wiki content and allows clicking links
+
+
+
+v2
+- websockets
+- connecting in browser joins default game
+- game state
+  - pre round
+  - target
+  - choice timer
+  - game timer
+  - page history of all players
+
+- players send up wiki choices
+- server sends down game state whenever it changes
+  	
+  
+
+
+
