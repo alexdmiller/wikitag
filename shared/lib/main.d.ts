@@ -1,1 +1,1 @@
-export { Player, Room, GameState } from "./types";
+export { Player, Game, Event, Command, JoinGameCommand } from "./types";

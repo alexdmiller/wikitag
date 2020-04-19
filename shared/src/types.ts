@@ -3,8 +3,21 @@ export type Player = {
   name: string;
 };
 
-export enum GameState {}
+export enum Command {
+  JoinGame = "JoinGame",
+  LeaveGame = "LeaveGame",
+}
 
-export type Room = {
+export enum Event {
+  Connected = "Connected",
+  GameState = "GameState",
+  GameJoined = "GameJoined",
+}
+
+export type Game = {
   players: Player[];
+};
+
+export type JoinGameCommand = {
+  name: string;
 };

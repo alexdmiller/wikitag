@@ -1,53 +1,103 @@
 import React, { ChangeEvent } from "react";
 import "./App.css";
-import WikipediaPageView from "./WikipediaPageView";
+// import WikipediaPageView from "./WikipediaPageView";
+import { Event, Game, Command, JoinGameCommand } from "wikitag-shared";
+import { ClientState } from "./clientState";
+import NameInput from "./NameInput";
 
-interface State {
-  searchTerm: string;
-  wikiHtml: string;
+interface Props {
+  socket: SocketIOClient.Socket;
 }
 
-class App extends React.Component<{}, State> {
-  state: State = {
-    searchTerm: "math",
-    wikiHtml: "",
-  };
+interface State {
+  game?: Game;
+  clientState: ClientState;
+}
+
+class App extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      clientState: ClientState.NotConnected,
+    };
+  }
 
   componentDidMount = () => {
-    this.fetchPage(this.state.searchTerm);
+    this.props.socket.on(Event.Connected, this._onConnected);
+    this.props.socket.on(Event.GameState, this._onGameState);
   };
 
-  fetchPage = async (page: string) => {
-    const response = await fetch(
-      `http://localhost:5000/${this.state.searchTerm}`
-    );
-    const wikiHtml = await response.text();
+  componentWillUnmount = () => {
+    this.props.socket.off(Event.Connected, this._onConnected);
+    this.props.socket.off(Event.GameState, this._onGameState);
+  };
+
+  private _onConnected = () => {
     this.setState({
-      wikiHtml,
+      clientState: ClientState.Connected,
     });
   };
 
-  onKeyPress = async (event: { key: string }) => {
-    if (event.key === "Enter") {
-      await this.fetchPage(this.state.searchTerm);
-    }
-  };
-
-  onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  private _onGameState = (game: Game) => {
     this.setState({
-      searchTerm: event.target.value,
+      clientState: ClientState.InGame,
+      game,
     });
   };
 
-  onWikiClick = (page: string) => {
-    this.setState({ searchTerm: page, wikiHtml: "" });
-    this.fetchPage(page);
+  _joinGame = (name: string) => {
+    const command: JoinGameCommand = {
+      name: name,
+    };
+    this.props.socket.emit(Command.JoinGame, command);
   };
+
+  _disconnect = () => {};
+
+  // fetchPage = async (page: string) => {
+  //   const response = await fetch(
+  //     `http://localhost:5000/${this.state.searchTerm}`
+  //   );
+  //   const wikiHtml = await response.text();
+  //   this.setState({
+  //     wikiHtml,
+  //   });
+  // };
+
+  // onKeyPress = async (event: { key: string }) => {
+  //   if (event.key === "Enter") {
+  //     await this.fetchPage(this.state.searchTerm);
+  //   }
+  // };
+
+  // onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   this.setState({
+  //     searchTerm: event.target.value,
+  //   });
+  // };
+
+  // onWikiClick = (page: string) => {
+  //   this.setState({ searchTerm: page, wikiHtml: "" });
+  //   this.fetchPage(page);
+  // };
 
   render() {
     return (
       <div className="App">
-        <input
+        {this.state.clientState === ClientState.NotConnected && (
+          <div>Connecting...</div>
+        )}
+
+        {this.state.clientState === ClientState.Connected && (
+          <NameInput onAccept={this._joinGame} />
+        )}
+
+        {this.state.clientState === ClientState.InGame && (
+          <div>{JSON.stringify(this.state.game)}</div>
+        )}
+
+        {/* <input
           type="text"
           onChange={this.onChange}
           value={this.state.searchTerm}
@@ -56,7 +106,7 @@ class App extends React.Component<{}, State> {
         <WikipediaPageView
           wikiHtml={this.state.wikiHtml}
           onWikiClick={this.onWikiClick}
-        />
+        /> */}
       </div>
     );
   }
