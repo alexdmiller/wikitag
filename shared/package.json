@@ -1,0 +1,9 @@
+{
+  "name": "wikitag-shared",
+  "version": "1.0.0",
+  "main": "./lib/main.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "yarn run tsc"
+  }
+}

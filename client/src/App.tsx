@@ -1,5 +1,4 @@
-import React, { useState, ChangeEvent, useRef } from "react";
-import logo from "./logo.svg";
+import React, { ChangeEvent } from "react";
 import "./App.css";
 import WikipediaPageView from "./WikipediaPageView";
 
@@ -10,8 +9,12 @@ interface State {
 
 class App extends React.Component<{}, State> {
   state: State = {
-    searchTerm: "",
+    searchTerm: "math",
     wikiHtml: "",
+  };
+
+  componentDidMount = () => {
+    this.fetchPage(this.state.searchTerm);
   };
 
   fetchPage = async (page: string) => {
@@ -37,7 +40,7 @@ class App extends React.Component<{}, State> {
   };
 
   onWikiClick = (page: string) => {
-    this.setState({ searchTerm: page });
+    this.setState({ searchTerm: page, wikiHtml: "" });
     this.fetchPage(page);
   };
 

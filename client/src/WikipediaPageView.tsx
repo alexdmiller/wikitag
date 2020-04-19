@@ -6,6 +6,12 @@ interface Props {
   onWikiClick: (page: string) => void;
 }
 
+interface WikiLink {
+  title: string;
+  page: string;
+  element: HTMLElement;
+}
+
 function WikipediaPageView(props: Props) {
   const getHtml = () => {
     return { __html: props.wikiHtml };
@@ -20,17 +26,22 @@ function WikipediaPageView(props: Props) {
     const links: any = document
       .getElementById("wiki-view")
       ?.getElementsByTagName("a")!;
-    console.log(links.length);
+    let wikiLinks: HTMLElement[] = [];
     for (let element of links) {
       const htmlElement = element as HTMLElement;
       const link = htmlElement.getAttribute("href")!;
       const regexp: RegExp = /\/wiki\/(.*)/;
       const results: string[] = regexp.exec(link) as string[];
       if (results) {
-        const title = htmlElement.getAttribute("title");
         htmlElement.onclick = onWikiClick(results[1]);
+        wikiLinks.push(htmlElement);
       }
     }
+
+    return () => {
+      wikiLinks.forEach((element) => (element.onclick = null));
+      wikiLinks = [];
+    };
   });
 
   return (
