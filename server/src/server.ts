@@ -25,14 +25,17 @@ io.on("connection", (socket) => {
 
     io.emit(Event.GameState, game);
 
-    socket.on(Command.LeaveGame, () => {
+    const onLeaveGame = () => {
       // TODO: is there a native socket io way to listen for disconnection? do that.
       const index = game.players.indexOf(player);
       game.players.splice(index, 1);
       socket.disconnect();
 
       io.emit(Event.GameState, game);
-    });
+    };
+
+    socket.on(Command.LeaveGame, onLeaveGame);
+    socket.on("disconnect", onLeaveGame);
   });
 });
 

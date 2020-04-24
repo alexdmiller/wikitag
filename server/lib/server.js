@@ -23,12 +23,15 @@ io.on("connection", (socket) => {
         };
         game.players.push(player);
         io.emit(wikitag_shared_1.Event.GameState, game);
-        socket.on(wikitag_shared_1.Command.LeaveGame, () => {
+        const onLeaveGame = () => {
+            // TODO: is there a native socket io way to listen for disconnection? do that.
             const index = game.players.indexOf(player);
             game.players.splice(index, 1);
             socket.disconnect();
             io.emit(wikitag_shared_1.Event.GameState, game);
-        });
+        };
+        socket.on(wikitag_shared_1.Command.LeaveGame, onLeaveGame);
+        socket.on("disconnect", onLeaveGame);
     });
 });
 // app.get("/:search", async (req, res) => {
