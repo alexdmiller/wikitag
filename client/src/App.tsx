@@ -4,6 +4,8 @@ import "./App.css";
 import { Event, Game, Command, JoinGameCommand } from "wikitag-shared";
 import { ClientState } from "./clientState";
 import NameInput from "./NameInput";
+import WikipediaPageView from "./WikipediaPageView";
+import { GoToPageCommand, WikiPage } from "wikitag-shared/lib/types";
 
 interface Props {
   socket: SocketIOClient.Socket;
@@ -12,6 +14,7 @@ interface Props {
 interface State {
   game?: Game;
   clientState: ClientState;
+  wikiHtml: string;
 }
 
 class App extends React.Component<Props, State> {
@@ -20,17 +23,22 @@ class App extends React.Component<Props, State> {
 
     this.state = {
       clientState: ClientState.NotConnected,
+      wikiHtml: "",
     };
   }
 
   componentDidMount = () => {
     this.props.socket.on(Event.Connected, this._onConnected);
+    this.props.socket.on(Event.GameJoined, this._onGameJoined);
     this.props.socket.on(Event.GameState, this._onGameState);
+    this.props.socket.on(Event.WikiPageReceived, this._onPageReceived);
   };
 
   componentWillUnmount = () => {
     this.props.socket.off(Event.Connected, this._onConnected);
+    this.props.socket.off(Event.GameJoined, this._onGameJoined);
     this.props.socket.off(Event.GameState, this._onGameState);
+    this.props.socket.off(Event.WikiPageReceived, this._onPageReceived);
   };
 
   private _onConnected = () => {
@@ -39,31 +47,50 @@ class App extends React.Component<Props, State> {
     });
   };
 
-  private _onGameState = (game: Game) => {
+  private _onGameJoined = (game: Game) => {
     this.setState({
       clientState: ClientState.InGame,
       game,
     });
+
+    // TODO: when is this initial page chosen? at the start of a new game?
+    this._goToPage("math");
   };
 
-  _joinGame = (name: string) => {
+  private _onGameState = (game: Game) => {
+    this.setState({
+      game,
+    });
+  };
+
+  private _joinGame = (name: string) => {
     const command: JoinGameCommand = {
       name: name,
     };
     this.props.socket.emit(Command.JoinGame, command);
   };
 
-  _disconnect = () => {};
+  // TODO: what would ever call this? can you disconnect from the current rooom?
+  private _disconnect = () => {};
 
-  // fetchPage = async (page: string) => {
-  //   const response = await fetch(
-  //     `http://localhost:5000/${this.state.searchTerm}`
-  //   );
-  //   const wikiHtml = await response.text();
-  //   this.setState({
-  //     wikiHtml,
-  //   });
-  // };
+  private _goToPage = async (page: string) => {
+    const command: GoToPageCommand = {
+      page: page,
+    };
+    this.props.socket.emit(Command.GoToPage, command);
+  };
+
+  private _onPageReceived = async (wikiPage: WikiPage) => {
+    this.setState({ wikiHtml: wikiPage.content });
+  };
+
+  /*
+      const response = await socket
+    const wikiHtml = await response.text();
+    this.setState({
+      wikiHtml,
+    });
+*/
 
   // onKeyPress = async (event: { key: string }) => {
   //   if (event.key === "Enter") {
@@ -77,10 +104,10 @@ class App extends React.Component<Props, State> {
   //   });
   // };
 
-  // onWikiClick = (page: string) => {
-  //   this.setState({ searchTerm: page, wikiHtml: "" });
-  //   this.fetchPage(page);
-  // };
+  private _onWikiClick = (page: string) => {
+    this.setState({ wikiHtml: "" });
+    this._goToPage(page);
+  };
 
   render() {
     return (
@@ -97,16 +124,10 @@ class App extends React.Component<Props, State> {
           <div>{JSON.stringify(this.state.game)}</div>
         )}
 
-        {/* <input
-          type="text"
-          onChange={this.onChange}
-          value={this.state.searchTerm}
-          onKeyPress={this.onKeyPress}
-        />
         <WikipediaPageView
           wikiHtml={this.state.wikiHtml}
-          onWikiClick={this.onWikiClick}
-        /> */}
+          onWikiClick={this._onWikiClick}
+        />
       </div>
     );
   }

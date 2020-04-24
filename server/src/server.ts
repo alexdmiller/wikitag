@@ -1,7 +1,8 @@
-// import wiki from "wikijs";
+import wiki from "wikijs";
 // import express from "express";
 import socketio from "socket.io";
 import { Event, Game, Player, Command, JoinGameCommand } from "wikitag-shared";
+import { GoToPageCommand, WikiPage } from "wikitag-shared/lib/types";
 
 // const app = express();
 // const port = 5000;
@@ -23,6 +24,7 @@ io.on("connection", (socket) => {
     };
     game.players.push(player);
 
+    socket.emit(Event.GameJoined, game);
     io.emit(Event.GameState, game);
 
     const onLeaveGame = () => {
@@ -36,20 +38,26 @@ io.on("connection", (socket) => {
 
     socket.on(Command.LeaveGame, onLeaveGame);
     socket.on("disconnect", onLeaveGame);
+
+    socket.on(Command.GoToPage, async (command: GoToPageCommand) => {
+      const page = await (wiki() as any).api({
+        action: "parse",
+        page: command.page,
+      });
+      const response: WikiPage = {
+        content: page.parse.text["*"],
+      };
+      socket.emit(Event.WikiPageReceived, response);
+
+      player.currentPage = command.page;
+      io.emit(Event.GameState, game);
+    });
   });
 });
 
 // app.get("/:search", async (req, res) => {
 //   const search = req.params.search;
 
-//   const page = await (wiki() as any).api({
-//     action: "parse",
-//     page: search,
-//   });
-//   res.set({
-//     "Access-Control-Allow-Origin": "*",
-//   });
-//   res.send(page.parse.text["*"]);
 // });
 
 // io.app.listen(port, () =>
