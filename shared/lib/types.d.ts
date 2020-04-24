@@ -9,7 +9,13 @@ export declare enum Event {
     GameJoined = "GameJoined",
     WikiPageReceived = "WikiPageReceived"
 }
+export declare enum GameState {
+    Waiting = "Waiting",
+    RunnerFree = "RunnerFree",
+    RunnerBlocked = "RunnerBlocked"
+}
 export declare type Game = {
+    state: GameState;
     players: Player[];
 };
 export declare type WikiPage = {

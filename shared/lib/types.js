@@ -8,6 +8,12 @@ var Event;
     Event["GameJoined"] = "GameJoined";
     Event["WikiPageReceived"] = "WikiPageReceived";
 })(Event = exports.Event || (exports.Event = {}));
+var GameState;
+(function (GameState) {
+    GameState["Waiting"] = "Waiting";
+    GameState["RunnerFree"] = "RunnerFree";
+    GameState["RunnerBlocked"] = "RunnerBlocked";
+})(GameState = exports.GameState || (exports.GameState = {}));
 // Commands
 var Command;
 (function (Command) {

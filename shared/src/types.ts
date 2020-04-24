@@ -13,7 +13,13 @@ export enum Event {
   WikiPageReceived = "WikiPageReceived",
 }
 
+export enum GameState {
+  Waiting = "Waiting",
+  RunnerFree = "RunnerFree",
+  RunnerBlocked = "RunnerBlocked",
+}
 export type Game = {
+  state: GameState;
   players: Player[];
 };
 
