@@ -1,1 +1,8 @@
-export { Player, Game, Event, Command, JoinGameCommand } from "./types";
+export {
+  Player,
+  Game,
+  GameState,
+  Event,
+  Command,
+  JoinGameCommand,
+} from "./types";

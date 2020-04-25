@@ -1,7 +1,23 @@
+// Shared Game Model
+
+export type Game = {
+  state: GameState;
+  players: Player[];
+  minPlayers: number;
+};
+
+export enum GameState {
+  WaitingToStartRound = "WaitingToStartRound",
+  PlayingRound = "PlayingRound",
+  RoundComplete = "RoundComplete",
+}
+
 export type Player = {
   uid: string;
   name: string;
   currentPage?: string;
+  points: number;
+  isRunner: boolean;
 };
 
 // Events
@@ -12,16 +28,6 @@ export enum Event {
   GameJoined = "GameJoined",
   WikiPageReceived = "WikiPageReceived",
 }
-
-export enum GameState {
-  Waiting = "Waiting",
-  RunnerFree = "RunnerFree",
-  RunnerBlocked = "RunnerBlocked",
-}
-export type Game = {
-  state: GameState;
-  players: Player[];
-};
 
 export type WikiPage = {
   content: string;

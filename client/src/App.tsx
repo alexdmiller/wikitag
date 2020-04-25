@@ -28,15 +28,14 @@ class App extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
-    this.props.socket.on(Event.Connected, this._onConnected);
-    this.props.socket.on(Event.GameJoined, this._onGameJoined);
+    console.log(this.props.socket.connected);
+    this.props.socket.on("connect", this._onConnected);
     this.props.socket.on(Event.GameState, this._onGameState);
     this.props.socket.on(Event.WikiPageReceived, this._onPageReceived);
   };
 
   componentWillUnmount = () => {
-    this.props.socket.off(Event.Connected, this._onConnected);
-    this.props.socket.off(Event.GameJoined, this._onGameJoined);
+    this.props.socket.off("connect", this._onConnected);
     this.props.socket.off(Event.GameState, this._onGameState);
     this.props.socket.off(Event.WikiPageReceived, this._onPageReceived);
   };
@@ -47,18 +46,19 @@ class App extends React.Component<Props, State> {
     });
   };
 
-  private _onGameJoined = (game: Game) => {
-    this.setState({
-      clientState: ClientState.InGame,
-      game,
-    });
+  // private _onGameJoined = (game: Game) => {
+  //   this.setState({
+  //     clientState: ClientState.InGame,
+  //     game,
+  //   });
 
-    // TODO: when is this initial page chosen? at the start of a new game?
-    this._goToPage("math");
-  };
+  //   // TODO: when is this initial page chosen? at the start of a new game?
+  //   this._goToPage("math");
+  // };
 
   private _onGameState = (game: Game) => {
     this.setState({
+      clientState: ClientState.InGame,
       game,
     });
   };

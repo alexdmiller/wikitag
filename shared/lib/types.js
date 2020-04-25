@@ -1,5 +1,12 @@
 "use strict";
+// Shared Game Model
 Object.defineProperty(exports, "__esModule", { value: true });
+var GameState;
+(function (GameState) {
+    GameState["WaitingToStartRound"] = "WaitingToStartRound";
+    GameState["PlayingRound"] = "PlayingRound";
+    GameState["RoundComplete"] = "RoundComplete";
+})(GameState = exports.GameState || (exports.GameState = {}));
 // Events
 var Event;
 (function (Event) {
@@ -8,12 +15,6 @@ var Event;
     Event["GameJoined"] = "GameJoined";
     Event["WikiPageReceived"] = "WikiPageReceived";
 })(Event = exports.Event || (exports.Event = {}));
-var GameState;
-(function (GameState) {
-    GameState["Waiting"] = "Waiting";
-    GameState["RunnerFree"] = "RunnerFree";
-    GameState["RunnerBlocked"] = "RunnerBlocked";
-})(GameState = exports.GameState || (exports.GameState = {}));
 // Commands
 var Command;
 (function (Command) {
