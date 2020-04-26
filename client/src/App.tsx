@@ -30,12 +30,14 @@ class App extends React.Component<Props, State> {
   componentDidMount = () => {
     console.log(this.props.socket.connected);
     this.props.socket.on("connect", this._onConnected);
+    this.props.socket.on(Event.GameJoined, this._onGameJoined);
     this.props.socket.on(Event.GameState, this._onGameState);
     this.props.socket.on(Event.WikiPageReceived, this._onPageReceived);
   };
 
   componentWillUnmount = () => {
     this.props.socket.off("connect", this._onConnected);
+    this.props.socket.off(Event.GameJoined, this._onGameJoined);
     this.props.socket.off(Event.GameState, this._onGameState);
     this.props.socket.off(Event.WikiPageReceived, this._onPageReceived);
   };
@@ -46,28 +48,20 @@ class App extends React.Component<Props, State> {
     });
   };
 
-  // private _onGameJoined = (game: Game) => {
-  //   this.setState({
-  //     clientState: ClientState.InGame,
-  //     game,
-  //   });
-
-  //   // TODO: when is this initial page chosen? at the start of a new game?
-  //   this._goToPage("math");
-  // };
+  private _onGameJoined = (game: Game) => {
+    this.setState({
+      clientState: ClientState.InGame,
+    });
+  };
 
   private _onGameState = (game: Game) => {
     this.setState({
-      clientState: ClientState.InGame,
       game,
     });
   };
 
   private _joinGame = (name: string) => {
-    const command: JoinGameCommand = {
-      name: name,
-    };
-    this.props.socket.emit(Command.JoinGame, command);
+    this.props.socket.emit(Command.JoinGame, name);
   };
 
   // TODO: what would ever call this? can you disconnect from the current rooom?
@@ -80,8 +74,10 @@ class App extends React.Component<Props, State> {
     this.props.socket.emit(Command.GoToPage, command);
   };
 
-  private _onPageReceived = async (wikiPage: WikiPage) => {
-    this.setState({ wikiHtml: wikiPage.content });
+  // TODO: why is this not getting the page?
+  private _onPageReceived = async (wikiPage: string) => {
+    console.log(wikiPage);
+    this.setState({ wikiHtml: wikiPage });
   };
 
   /*
@@ -121,7 +117,9 @@ class App extends React.Component<Props, State> {
         )}
 
         {this.state.clientState === ClientState.InGame && (
-          <div>{JSON.stringify(this.state.game)}</div>
+          <div>
+            <pre>{JSON.stringify(this.state.game, null, 2)}</pre>
+          </div>
         )}
 
         <WikipediaPageView
