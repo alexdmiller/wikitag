@@ -1,4 +1,4 @@
-import wiki from "wikijs";
+// import wiki from "wikijs";
 import socketio from "socket.io";
 import { Player, Game, GameState, Event } from "wikitag-shared";
 import PlayerHandler from "./PlayerHandler";
@@ -20,17 +20,20 @@ export default class GameServer {
   }
 
   private onConnection = (socket: socketio.Socket) => {
+    console.log("GameServer: onConnection");
     const handler = new PlayerHandler(this, socket);
     this.playerHandlers.push(handler);
   };
 
   public addPlayer = async (playerHandler: PlayerHandler) => {
+    console.log("GameServer: adding player");
     this.game.players.push(playerHandler.getPlayer()!);
 
     switch (this.game.state) {
       case GameState.PlayingRound:
-        const randomPage = await wiki().random(this.game.players.length);
-        playerHandler.onGoToPage(randomPage[0]);
+        // TODO: actually get pages
+        const randomPage = "page " + Math.round(Math.random() * 100); // await wiki().random(this.game.players.length);
+        playerHandler.onGoToPage(randomPage);
 
         this.io.emit(Event.GameState, this.game);
         break;
@@ -48,6 +51,7 @@ export default class GameServer {
   };
 
   public startRound = async () => {
+    console.log("GameServer: starting round");
     // change state
     this.game.state = GameState.PlayingRound;
 
@@ -55,6 +59,7 @@ export default class GameServer {
     const currentRunner = this.game.players.findIndex(
       (player) => player.isRunner
     );
+
     if (currentRunner == -1) {
       this.game.players[0].isRunner = true;
     } else {
@@ -67,24 +72,32 @@ export default class GameServer {
     this.io.emit(Event.GameState, this.game);
 
     // select articles
-    const randomPages = await wiki().random(this.game.players.length);
+    // TODO: actually get pages
+    // const randomPages = await wiki().random(this.game.players.length);
+    const randomPages = this.game.players.map((player, idx) => `page ${idx}`);
     randomPages.forEach((page, idx) => {
       this.playerHandlers[idx].onGoToPage(page);
     });
   };
 
   public removePlayer = (playerHandler: PlayerHandler) => {
-    const playerIndex = this.game.players.indexOf(playerHandler.getPlayer()!);
-    this.game.players = this.game.players.splice(playerIndex, 1);
+    console.log(
+      "GameServer: removing player " + playerHandler.getPlayer()!.name
+    );
+    const playerIndex = this.game.players.findIndex(
+      (player) => playerHandler.getPlayer()!.uid === player.uid
+    );
+
+    this.game.players.splice(playerIndex, 1);
 
     const handlerIndex = this.playerHandlers.indexOf(playerHandler);
-    this.playerHandlers = this.playerHandlers.splice(handlerIndex);
+    this.playerHandlers.splice(handlerIndex);
 
     this.io.emit(Event.GameState, this.game);
   };
 
   public movePlayerToPage = (player: Player, page: string) => {
-    // TODO: TypeError: Cannot set property 'currentPage' of undefined
+    console.log("GameServer: " + player.name + " moving to page " + page);
     player.currentPage = page;
     this.io.emit(Event.GameState, this.game);
   };

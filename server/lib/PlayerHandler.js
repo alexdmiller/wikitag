@@ -4,6 +4,7 @@ const wikitag_shared_1 = require("wikitag-shared");
 class PlayerHandler {
     constructor(server, socket) {
         this.onJoinGame = (name) => {
+            console.log("playerHandler: " + name + " is joining game");
             this.player = {
                 uid: this.socket.id,
                 name: name,
@@ -12,8 +13,7 @@ class PlayerHandler {
             };
             this.socket.emit(wikitag_shared_1.Event.GameJoined);
             this.server.addPlayer(this);
-            // TODO: just always get a random page?
-            //   const randomPages = await wiki().random(count);
+            // TODO: if game is currently running, go to a random page
         };
         this.onLeaveGame = () => {
             this.socket.off(wikitag_shared_1.Command.JoinGame, this.onJoinGame);
@@ -23,15 +23,15 @@ class PlayerHandler {
             this.server.removePlayer(this);
         };
         this.onGoToPage = async (pageName) => {
-            var _a;
-            console.log("player " + ((_a = this.player) === null || _a === void 0 ? void 0 : _a.uid) + " going to page " + pageName);
+            console.log("playerHandler: " + this.player.name + " is going to page " + pageName);
             // TODO: if player is runner, then start countdown timer
+            // TODO: turn this back on
             // const page = await (wiki() as any).api({
             //   action: "parse",
             //   page: pageName,
             // });
             // const pageContent = page.parse.text["*"];
-            this.socket.send(wikitag_shared_1.Event.WikiPageReceived, "Hello");
+            this.socket.emit(wikitag_shared_1.Event.WikiPageReceived, "Hello");
             this.server.movePlayerToPage(this.player, pageName);
         };
         this.server = server;

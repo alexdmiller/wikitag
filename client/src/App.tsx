@@ -49,6 +49,7 @@ class App extends React.Component<Props, State> {
   };
 
   private _onGameJoined = (game: Game) => {
+    console.log("Game joined!");
     this.setState({
       clientState: ClientState.InGame,
     });
@@ -74,9 +75,7 @@ class App extends React.Component<Props, State> {
     this.props.socket.emit(Command.GoToPage, command);
   };
 
-  // TODO: why is this not getting the page?
   private _onPageReceived = async (wikiPage: string) => {
-    console.log(wikiPage);
     this.setState({ wikiHtml: wikiPage });
   };
 

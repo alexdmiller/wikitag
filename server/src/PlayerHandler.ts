@@ -22,6 +22,7 @@ export default class PlayerHandler {
   }
 
   private onJoinGame = (name: string) => {
+    console.log("playerHandler: " + name + " is joining game");
     this.player = {
       uid: this.socket.id,
       name: name,
@@ -30,8 +31,8 @@ export default class PlayerHandler {
     };
     this.socket.emit(Event.GameJoined);
     this.server.addPlayer(this);
-    // TODO: just always get a random page?
-    //   const randomPages = await wiki().random(count);
+
+    // TODO: if game is currently running, go to a random page
   };
 
   private onLeaveGame = () => {
@@ -44,16 +45,20 @@ export default class PlayerHandler {
   };
 
   public onGoToPage = async (pageName: string) => {
-    console.log("player " + this.player?.uid + " going to page " + pageName);
+    console.log(
+      "playerHandler: " + this.player!.name + " is going to page " + pageName
+    );
 
     // TODO: if player is runner, then start countdown timer
+
+    // TODO: turn this back on
     // const page = await (wiki() as any).api({
     //   action: "parse",
     //   page: pageName,
     // });
     // const pageContent = page.parse.text["*"];
 
-    this.socket.send(Event.WikiPageReceived, "Hello");
+    this.socket.emit(Event.WikiPageReceived, "Hello");
     this.server.movePlayerToPage(this.player!, pageName);
   };
 }
